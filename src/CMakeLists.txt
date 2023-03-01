@@ -225,10 +225,7 @@ else()
     endif()
     install(TARGETS GL
       LIBRARY
-      DESTINATION "usr/lib/gl4es/"
-    )
-    install(FILES "../include/gl4esinit.h" "../include/gl4eshint.h"
-      DESTINATION "usr/include/gl4es/"
+      DESTINATION "usr/lib/${MULTIARCH_PREFIX}/gl4es/"
     )
 endif()
 

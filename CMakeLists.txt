@@ -27,6 +27,7 @@ option(NO_INIT_CONSTRUCTOR "disable automatic initialization (useful for static 
 option(USE_ANDROID_LOG "Set to ON to use Android log instead of stdio" ${USE_ANDROID_LOG})
 option(EGL_WRAPPER "Set to ON to build EGL wrapper" ${EGL_WRAPPER})
 option(GLX_STUBS "Set to ON to build GLX function stubs" ${GLX_STUBS})
+option(MULTIARCH_PREFIX "Set optional multiarch prefix" ${MULTIARCH_PREFIX})
 
 include(CheckSymbolExists)
 check_symbol_exists(backtrace "execinfo.h" HAS_BACKTRACE)
