@@ -186,6 +186,13 @@ if(AMIGAOS4)
     )
 endif()
 
+if(GLVND)
+    list(APPEND GL_SRC
+        ${CMAKE_CURRENT_SOURCE_DIR}/glvnd/glxglvnd.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/glvnd/g_glxglvnddispatchfuncs.c
+    )
+endif()
+
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/gl/build_info.c PROPERTIES OBJECT_DEPENDS "${GL_SRC};${GL_H}")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -210,7 +217,7 @@ else()
                 target_link_libraries(GL m dl)
             endif()
         else()
-            target_link_libraries(GL X11 m dl)
+            target_link_libraries(GL X11 m dl ${GLVND_CFLAGS})
         endif()
     endif()
     if(USE_CLOCK)

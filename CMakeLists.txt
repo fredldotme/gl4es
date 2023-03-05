@@ -14,6 +14,7 @@ option(BCMHOST "Set to ON if targeting an RPi(2) device" ${BCMHOST})
 option(ODROID "Set to ON if targeting an ODroid device" ${ODROID})
 option(GOA_CLONE "Set to ON if targeting GO Advance clones, like RG351p/v, Gameforce Chi, RGB10..." ${GOA_CLONE})
 option(ANDROID "Set to ON if targeting an Android device" ${ANDROID})
+option(HYBRIS "Set to ON if targeting an Android device with GNU/Linux userland" ${HYBRIS})
 option(CHIP "Set to ON if targeting an C.H.I.P. device" ${CHIP})
 option(AMIGAOS4 "Set to ON if targeting an AmigaOS4/Warp3D platform (activate NOEGL and NOX11)" ${AMIGAOS4})
 option(NOX11 "Set to ON to not use X11 (creation of context has to be done outside gl4es)" ${NOX11})
@@ -28,6 +29,7 @@ option(USE_ANDROID_LOG "Set to ON to use Android log instead of stdio" ${USE_AND
 option(EGL_WRAPPER "Set to ON to build EGL wrapper" ${EGL_WRAPPER})
 option(GLX_STUBS "Set to ON to build GLX function stubs" ${GLX_STUBS})
 option(MULTIARCH_PREFIX "Set optional multiarch prefix" ${MULTIARCH_PREFIX})
+option(GLVND "Set to ON to build GL4ES as libglvnd-capable" ${GLVND})
 
 include(CheckSymbolExists)
 check_symbol_exists(backtrace "execinfo.h" HAS_BACKTRACE)
@@ -111,6 +113,10 @@ if(USE_ANDROID_LOG)
     find_library(log-lib log)
 endif()
 
+if(HYBRIS)
+    add_definitions(-DHYBRIS -DNO_GBM -DDEFAULT_ES=2)
+endif()
+
 #PocketCHIP
 if(CHIP)
     add_definitions(-DCHIP)
@@ -170,6 +176,13 @@ endif()
 
 if(GLX_STUBS)
     add_definitions(-DGLX_STUBS)
+endif()
+
+if(GLVND)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GLVND REQUIRED libglvnd)
+    link_directories(${GLVND_LIBRARY_DIRS})
+    include_directories(${GLVND_INCLUDE_DIRS})
 endif()
 
 #DEFAULT_ES=2
