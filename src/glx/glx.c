@@ -156,6 +156,12 @@ void (*bcm_host_deinit)();
 
 // Generic create native window to use with "LIBGL_FB=1" (so with EGL_DEFAULT_DISPLAY and without X11)
 static void* create_native_window(int w, int h) {
+#ifdef HYBRIS
+    if (true) {
+        LOAD_EGL(eglCreateWindowSurface);
+        return egl_eglCreateWindowSurface(eglDisplay, eglConfigs, (EGLNativeWindowType)NULL, NULL);
+    }
+#endif
 #if !defined(ANDROID) && !defined(AMIGAOS4)
     if(bcm_host) return create_rpi_window(w, h);
 #endif
@@ -380,15 +386,16 @@ static void init_display(Display *display) {
     if (! g_display) {
         g_display = display;//XOpenDisplay(NULL);
     }
-    if(globals4es.usegbm) {
-        eglDisplay = OpenGBMDisplay(display);
-    }
 #ifdef HYBRIS
     if (!eglDisplay) {
         LOAD_EGL(eglGetPlatformDisplay);
         eglDisplay = egl_eglGetPlatformDisplay(EGL_PLATFORM_ANDROID_KHR, EGL_DEFAULT_DISPLAY, NULL);
+        return;
     }
 #endif
+    if(globals4es.usegbm) {
+        eglDisplay = OpenGBMDisplay(display);
+    }
     if(!eglDisplay) {
         if (globals4es.usefb || globals4es.usepbuffer) {
             eglDisplay = egl_eglGetDisplay(EGL_DEFAULT_DISPLAY);
