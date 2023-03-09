@@ -189,7 +189,6 @@ endif()
 if(GLVND)
     list(APPEND GL_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/glvnd/glxglvnd.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/glvnd/g_glxglvnddispatchfuncs.c
     )
 endif()
 

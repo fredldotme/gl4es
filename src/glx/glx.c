@@ -38,7 +38,7 @@
 #include "utils.h"
 #include "../gl/envvars.h"
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 #pragma GCC optimize 0
 #define DBG(a) a
@@ -156,7 +156,7 @@ void (*bcm_host_deinit)();
 
 // Generic create native window to use with "LIBGL_FB=1" (so with EGL_DEFAULT_DISPLAY and without X11)
 static void* create_native_window(int w, int h) {
-#ifdef HYBRIS
+#if 0
     if (true) {
         LOAD_EGL(eglCreateWindowSurface);
         return egl_eglCreateWindowSurface(eglDisplay, eglConfigs, (EGLNativeWindowType)NULL, NULL);
@@ -1094,7 +1094,11 @@ XVisualInfo *gl4es_glXChooseVisual(Display *display,
     // create a new attribute list for glXChooseFBConfig based on the attributes liste given...
     int attr[50];
     int idx = 0;
+#ifdef HYBRIS
+    int cur = 1;
+#else
     int cur = 0;
+#endif
     int ask_depth = 0;
     int vis_class = TrueColor;
     if(attributes) {
