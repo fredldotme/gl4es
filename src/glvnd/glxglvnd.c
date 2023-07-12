@@ -132,7 +132,7 @@ static void *__glXGLVNDGetDispatchAddress(const GLubyte *procName)
         }
     }
 
-    return gl4es_glXGetProcAddress(procName);
+    return gl4es_GetProcAddress(procName);
 }
 
 static void __glXGLVNDSetDispatchIndex(const GLubyte *procName, int index)

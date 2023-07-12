@@ -38,7 +38,7 @@
 #include "utils.h"
 #include "../gl/envvars.h"
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #pragma GCC optimize 0
 #define DBG(a) a
@@ -386,13 +386,6 @@ static void init_display(Display *display) {
     if (! g_display) {
         g_display = display;//XOpenDisplay(NULL);
     }
-#ifdef HYBRIS
-    if (!eglDisplay) {
-        LOAD_EGL(eglGetPlatformDisplay);
-        eglDisplay = egl_eglGetPlatformDisplay(EGL_PLATFORM_ANDROID_KHR, EGL_DEFAULT_DISPLAY, NULL);
-        return;
-    }
-#endif
     if(globals4es.usegbm) {
         eglDisplay = OpenGBMDisplay(display);
     }
@@ -783,8 +776,11 @@ GLXContext gl4es_glXCreateContext(Display *display,
     }
 
 	result = egl_eglChooseConfig(eglDisplay, configAttribs, fake->eglConfigs, 64, &fake->eglConfigsCount);
+
+#ifndef NO_GBM
     if(fake->eglConfigsCount && globals4es.usegbm)
         fake->eglconfigIdx = FindGBMConfig(eglDisplay, fake->eglConfigs, fake->eglConfigsCount);
+#endif
 
     CheckEGLErrors();
     if (result != EGL_TRUE || fake->eglConfigsCount == 0) {
@@ -964,10 +960,12 @@ GLXContext gl4es_glXCreateContextAttribsARB(Display *display, GLXFBConfig config
         }
 
         result = egl_eglChooseConfig(eglDisplay, configAttribs, fake->eglConfigs, 64, &fake->eglConfigsCount);
+
+        fake->eglconfigIdx = 0;
+#ifndef NO_GBM
         if(fake->eglConfigsCount && globals4es.usegbm)
             fake->eglconfigIdx = FindGBMConfig(eglDisplay, fake->eglConfigs, fake->eglConfigsCount);
-        else
-            fake->eglconfigIdx = 0;
+#endif
 
         CheckEGLErrors();
         if (result != EGL_TRUE || fake->eglConfigsCount == 0) {
@@ -1094,11 +1092,7 @@ XVisualInfo *gl4es_glXChooseVisual(Display *display,
     // create a new attribute list for glXChooseFBConfig based on the attributes liste given...
     int attr[50];
     int idx = 0;
-#ifdef HYBRIS
-    int cur = 1;
-#else
     int cur = 0;
-#endif
     int ask_depth = 0;
     int vis_class = TrueColor;
     if(attributes) {
@@ -1791,7 +1785,7 @@ GLXFBConfig *gl4es_glXChooseFBConfig(Display *display, int screen,
                     if(tmp&GLX_PIXMAP_BIT)
                         attr[1] |= EGL_PIXMAP_BIT;
                     if(tmp&GLX_PBUFFER_BIT)
-                        attr[1] |= EGL_PIXMAP_BIT;
+                        attr[1] |= EGL_PBUFFER_BIT;
                     drawable_set = 1;
                     DBG(printf("FBConfig drawableType=0x%X\n", tmp);)
                     break;
@@ -1857,7 +1851,7 @@ GLXFBConfig *gl4es_glXChooseFBConfig(Display *display, int screen,
         attr[cur++] = EGL_STENCIL_SIZE;
         attr[cur++] = 8;
     }
-    attr[1] |= (globals4es.usepbuffer)?(/*EGL_PBUFFER_BIT|*/EGL_PIXMAP_BIT):EGL_WINDOW_BIT;
+    attr[1] |= (globals4es.usepbuffer)?(EGL_PBUFFER_BIT/*|EGL_PIXMAP_BIT*/):EGL_WINDOW_BIT;
 
     attr[cur++] = EGL_RENDERABLE_TYPE;
     attr[cur++] = (hardext.esversion==1)?EGL_OPENGL_ES_BIT:EGL_OPENGL_ES2_BIT;
@@ -1960,7 +1954,7 @@ GLXFBConfig *gl4es_glXGetFBConfigs(Display *display, int screen, int *count) {
     int cur = 0;
     int tmp;
     attr[cur++] = EGL_SURFACE_TYPE;
-    attr[cur++] = (globals4es.usepbuffer)?(EGL_PBUFFER_BIT|EGL_PIXMAP_BIT):EGL_WINDOW_BIT;
+    attr[cur++] = (globals4es.usepbuffer)?(EGL_PBUFFER_BIT/*|EGL_PIXMAP_BIT*/):EGL_WINDOW_BIT;
     attr[cur++] = EGL_RENDERABLE_TYPE;
     attr[cur++] = (hardext.esversion==1)?EGL_OPENGL_ES_BIT:EGL_OPENGL_ES2_BIT;
     attr[cur++] = EGL_NONE; // end list
